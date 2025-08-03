@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSS形状绘制实验</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            background-color: #f5f5f5;
+        }
+        
+        header {
+            background-color: #333;
+            color: white;
+            padding: 15px;
+            text-align: center;
+        }
+        
+        .container {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+        
+        .editor-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 15px;
+            background-color: #282c34;
+            color: #abb2bf;
+        }
+        
+        .preview-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 15px;
+            background-color: white;
+        }
+        
+        .code-editor {
+            flex: 1;
+            width: 100%;
+            background-color: #282c34;
+            color: #abb2bf;
+            border: none;
+            padding: 10px;
+            font-family: 'Consolas', monospace;
+            font-size: 14px;
+            resize: none;
+            outline: none;
+            border-radius: 4px;
+            margin-bottom: 10px;
+        }
+        
+        .preview-area {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: 1px dashed #ccc;
+            background-color: #f9f9f9;
+            margin-bottom: 15px;
+        }
+        
+        .shape-container {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        button {
+            padding: 8px 15px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        button:hover {
+            background-color: #45a049;
+        }
+        
+        select {
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            flex: 1;
+        }
+        
+        .title {
+            margin-bottom: 10px;
+            font-weight: bold;
+            color: white;
+        }
+        
+        .preview-title {
+            margin-bottom: 10px;
+            font-weight: bold;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>CSS形状绘制实验</h1>
+    </header>
+    
+    <div class="container">
+        <div class="editor-panel">
+            <div class="title">CSS代码</div>
+            <textarea id="css-code" class="code-editor"></textarea>
+            <div class="controls">
+                <select id="presets">
+                    <option value="">选择预设形状...</option>
+                    <option value="triangle1">三角形1 (向上)</option>
+                    <option value="triangle2">三角形2 (向下)</option>
+                    <option value="triangle3">三角形3 (向左)</option>
+                    <option value="triangle4">三角形4 (向右)</option>
+                    <option value="triangle5">三角形5 (右上角)</option>
+                    <option value="sector">扇形 (90度)</option>
+                    <option value="square1">自适应正方形 (vw单位)</option>
+                    <option value="square2">自适应正方形 (padding百分比)</option>
+                    <option value="square3">自适应正方形 (margin-top百分比)</option>
+                </select>
+                <button id="run-btn">运行</button>
+                <button id="reset-btn">重置</button>
+            </div>
+        </div>
+        
+        <div class="preview-panel">
+            <div class="preview-title">预览效果</div>
+            <div class="preview-area">
+                <div class="shape-container">
+                    <div id="shape"></div>
+                </div>
+            </div>
+            <div class="preview-title">HTML结构</div>
+            <div class="code-editor" readonly><div id="shape"></div></div>
+        </div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const cssCode = document.getElementById('css-code');
+            const runBtn = document.getElementById('run-btn');
+            const resetBtn = document.getElementById('reset-btn');
+            const presets = document.getElementById('presets');
+            const shape = document.getElementById('shape');
+            
+            // 创建一个style元素来持久化样式
+            const styleElement = document.createElement('style');
+            document.head.appendChild(styleElement);
+            
+            // 预设代码 - 每种形状使用不同的颜色
+            const presetCodes = {
+                triangle1: `#shape {
+    width: 0;
+    height: 0;
+    border-top: 50px solid #FF5252; /* 红色 */
+    border-right: 50px solid transparent;
+    border-left: 50px solid transparent;
+}`,
+                triangle2: `#shape {
+    width: 0;
+    height: 0;
+    border-bottom: 50px solid #4CAF50; /* 绿色 */
+    border-right: 50px solid transparent;
+    border-left: 50px solid transparent;
+}`,
+                triangle3: `#shape {
+    width: 0;
+    height: 0;
+    border-left: 50px solid #2196F3; /* 蓝色 */
+    border-top: 50px solid transparent;
+    border-bottom: 50px solid transparent;
+}`,
+                triangle4: `#shape {
+    width: 0;
+    height: 0;
+    border-right: 50px solid #FFC107; /* 黄色 */
+    border-top: 50px solid transparent;
+    border-bottom: 50px solid transparent;
+}`,
+                triangle5: `#shape {
+    width: 0;
+    height: 0;
+    border-top: 100px solid #9C27B0; /* 紫色 */
+    border-right: 100px solid transparent;
+}`,
+                sector: `#shape {
+    border: 100px solid transparent;
+    width: 0;
+    height: 0;
+    border-radius: 100px;
+    border-top-color: #FF9800; /* 橙色 */
+}`,
+                square1: `#shape {
+    width: 30%;
+    height: 30vw;
+    background: #00BCD4; /* 青色 */
+}`,
+                square2: `#shape {
+    width: 30%;
+    height: 0;
+    padding-top: 30%;
+    background: #795548; /* 棕色 */
+}`,
+                square3: `#shape {
+    width: 30%;
+    overflow: hidden;
+    background: #607D8B; /* 蓝灰色 */
+}
+#shape::after {
+    content: '';
+    display: block;
+    margin-top: 100%;
+}`
+            };
+            
+            // 选择预设
+            presets.addEventListener('change', function() {
+                const selected = this.value;
+                if (selected && presetCodes[selected]) {
+                    cssCode.value = presetCodes[selected];
+                    applyStyles();
+                }
+            });
+            
+            // 运行按钮
+            runBtn.addEventListener('click', applyStyles);
+            
+            // 重置按钮
+            resetBtn.addEventListener('click', function() {
+                cssCode.value = '';
+                styleElement.innerHTML = '';
+                shape.removeAttribute('style');
+            });
+            
+            // 应用样式
+            function applyStyles() {
+                // 重置shape的内联样式
+                shape.removeAttribute('style');
+                // 更新style元素的内容
+                styleElement.innerHTML = cssCode.value;
+            }
+            
+            // 初始加载第一个预设
+            cssCode.value = presetCodes.triangle1;
+            applyStyles();
+        });
+    </script>
+</body>
+</html>
