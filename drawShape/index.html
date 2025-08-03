@@ -4,23 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CSS 形状实验室 | 可视化 CSS 形状生成器</title>
-    <!-- 引入 Prism.js 代码高亮库 -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/themes/prism-okaidia.min.css" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-core.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/plugins/autoloader/prism-autoloader.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-css.min.js"></script>
-    
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&family=Noto+Sans+SC:wght@300;400;500&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary-color: #4361ee;
-            --secondary-color: #3f37c9;
-            --accent-color: #4895ef;
-            --dark-color: #2b2d42;
+            --gold: #FFD700;
+            --light-blue: #F0F8FF;
+            --deep-blue: #0080FF;
+            --dark-color: #1a1a2e;
             --light-color: #f8f9fa;
-            --success-color: #4cc9f0;
-            --warning-color: #f72585;
             --border-radius: 8px;
-            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
             --transition: all 0.3s ease;
         }
         
@@ -35,17 +28,18 @@
             display: flex;
             flex-direction: column;
             min-height: 100vh;
-            background-color: #f0f2f5;
+            background-color: var(--light-blue);
             color: var(--dark-color);
             line-height: 1.6;
         }
         
         header {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            background: linear-gradient(135deg, var(--deep-blue), #0066CC);
             color: white;
             padding: 1.5rem;
             text-align: center;
             box-shadow: var(--box-shadow);
+            position: relative;
         }
         
         header h1 {
@@ -54,19 +48,38 @@
             margin-bottom: 0.5rem;
         }
         
-        .container {
+        header p {
+            opacity: 0.9;
+            font-weight: 300;
+        }
+        
+        .gold-accent {
+            position: absolute;
+            width: 100px;
+            height: 3px;
+            background-color: var(--gold);
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        
+        .main-container {
             display: flex;
+            flex-direction: column;
             flex: 1;
-            overflow: hidden;
             max-width: 1200px;
-            margin: 0 auto;
-            width: 100%;
-            padding: 1rem;
+            margin: 1rem auto;
+            width: calc(100% - 2rem);
             gap: 1rem;
         }
         
-        .editor-panel, .preview-panel {
+        .content-row {
+            display: flex;
+            gap: 1rem;
             flex: 1;
+        }
+        
+        .editor-panel, .preview-panel, .tips-panel {
             display: flex;
             flex-direction: column;
             background-color: white;
@@ -75,13 +88,17 @@
             overflow: hidden;
         }
         
-        .editor-panel {
-            background-color: #1e1e2e;
+        .editor-panel, .preview-panel {
+            flex: 2;
+        }
+        
+        .tips-panel {
+            flex: 1;
         }
         
         .panel-header {
             padding: 1rem;
-            background-color: var(--primary-color);
+            background-color: var(--deep-blue);
             color: white;
             font-weight: 500;
             display: flex;
@@ -89,54 +106,25 @@
             gap: 0.5rem;
         }
         
-        .editor-panel .panel-header {
-            background-color: #2d2d3d;
-        }
-        
         .panel-header svg {
             width: 20px;
             height: 20px;
         }
         
-        /* 修改代码编辑器样式 */
         .code-editor {
             flex: 1;
             width: 100%;
-            background-color: #1e1e2e;
-            color: #d4d4d4;
+            background-color: white;
+            color: #333;
             border: none;
             padding: 1rem;
             font-family: 'Consolas', 'Monaco', monospace;
             font-size: 14px;
-            line-height: 1.5;
             resize: none;
             outline: none;
             border-radius: 0 0 var(--border-radius) var(--border-radius);
-            tab-size: 2;
-            white-space: pre;
-            overflow-x: auto;
-        }
-        
-        /* 代码高亮容器 */
-        .code-container {
-            position: relative;
-            flex: 1;
-            overflow: auto;
-        }
-        
-        /* 行号样式 */
-        .line-numbers {
-            position: absolute;
-            top: 0;
-            left: 0;
-            padding: 1rem;
-            padding-right: 0.5rem;
-            text-align: right;
-            color: #6c757d;
-            user-select: none;
-            font-family: 'Consolas', 'Monaco', monospace;
-            font-size: 14px;
             line-height: 1.5;
+            border: 1px solid #ddd;
         }
         
         .preview-area {
@@ -144,8 +132,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            background: linear-gradient(45deg, #f5f7fa 25%, #e4e8ed 25%, #e4e8ed 50%, #f5f7fa 50%, #f5f7fa 75%, #e4e8ed 75%, #e4e8ed 100%);
-            background-size: 20px 20px;
+            background-color: var(--light-blue);
             border-radius: 0 0 var(--border-radius) var(--border-radius);
             position: relative;
         }
@@ -163,13 +150,13 @@
             display: flex;
             gap: 0.75rem;
             padding: 1rem;
-            background-color: #2d2d3d;
-            border-top: 1px solid #3a3a4a;
+            background-color: #f0f0f0;
+            border-top: 1px solid #ddd;
         }
         
         button {
             padding: 0.6rem 1.2rem;
-            background-color: var(--accent-color);
+            background-color: var(--deep-blue);
             color: white;
             border: none;
             border-radius: var(--border-radius);
@@ -183,7 +170,7 @@
         }
         
         button:hover {
-            background-color: var(--secondary-color);
+            background-color: #0066CC;
             transform: translateY(-2px);
         }
         
@@ -198,9 +185,9 @@
         select {
             padding: 0.6rem;
             border-radius: var(--border-radius);
-            border: 1px solid #3a3a4a;
-            background-color: #2d2d3d;
-            color: white;
+            border: 1px solid #ddd;
+            background-color: white;
+            color: #333;
             font-size: 0.9rem;
             flex: 1;
             cursor: pointer;
@@ -208,13 +195,13 @@
         }
         
         select:hover {
-            border-color: var(--accent-color);
+            border-color: var(--deep-blue);
         }
         
         select:focus {
             outline: none;
-            border-color: var(--accent-color);
-            box-shadow: 0 0 0 2px rgba(72, 149, 239, 0.3);
+            border-color: var(--deep-blue);
+            box-shadow: 0 0 0 2px rgba(0, 128, 255, 0.2);
         }
         
         .html-structure {
@@ -227,6 +214,29 @@
             border-top: 1px solid #e9ecef;
         }
         
+        .tips-content {
+            flex: 1;
+            padding: 1rem;
+            overflow-y: auto;
+            background-color: white;
+        }
+        
+        .tip-item {
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .tip-item h3 {
+            color: var(--deep-blue);
+            margin-bottom: 0.5rem;
+        }
+        
+        .tip-item p {
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+        
         footer {
             text-align: center;
             padding: 1rem;
@@ -237,13 +247,13 @@
         
         /* 响应式设计 */
         @media (max-width: 768px) {
-            .container {
-                flex-direction: column;
-                padding: 0.5rem;
+            .main-container {
+                margin: 0.5rem;
+                width: calc(100% - 1rem);
             }
             
-            .editor-panel, .preview-panel {
-                min-height: 50vh;
+            .content-row {
+                flex-direction: column;
             }
             
             header h1 {
@@ -266,75 +276,97 @@
     <header>
         <h1>CSS 形状实验室</h1>
         <p>可视化 CSS 形状生成与预览工具</p>
+        <div class="gold-accent"></div>
     </header>
     
-    <div class="container">
-        <div class="editor-panel">
-            <div class="panel-header">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
-                </svg>
-                CSS 代码编辑器
-            </div>
-            <div class="code-container">
-                <div class="line-numbers" id="line-numbers"></div>
+    <div class="main-container">
+        <div class="content-row">
+            <div class="editor-panel">
+                <div class="panel-header">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                    </svg>
+                    CSS 代码编辑器
+                </div>
                 <textarea id="css-code" class="code-editor" spellcheck="false"></textarea>
-                <pre id="highlighted-code"><code class="language-css"></code></pre>
+                <div class="controls">
+                    <select id="presets">
+                        <option value="">选择预设形状...</option>
+                        <option value="triangle1">▲ 三角形 (向上)</option>
+                        <option value="triangle2">▼ 三角形 (向下)</option>
+                        <option value="triangle3">◄ 三角形 (向左)</option>
+                        <option value="triangle4">► 三角形 (向右)</option>
+                        <option value="triangle5">◥ 三角形 (右上角)</option>
+                        <option value="sector">◠ 扇形 (90度)</option>
+                        <option value="square1">■ 正方形 (vw单位)</option>
+                        <option value="square2">■ 正方形 (padding百分比)</option>
+                        <option value="square3">■ 正方形 (margin-top百分比)</option>
+                        <option value="trapezoid">▱ 梯形</option>
+                        <option value="parallelogram">▱ 平行四边形</option>
+                        <option value="star">★ 五角星</option>
+                        <option value="semi-circle">◔ 半圆</option>
+                        <option value="egg">🥚 蛋形</option>
+                        <option value="cross">✚ 十字形</option>
+                    </select>
+                    <button id="run-btn">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        运行
+                    </button>
+                    <button id="reset-btn">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                        </svg>
+                        重置
+                    </button>
+                </div>
             </div>
-            <div class="controls">
-                <select id="presets">
-                    <option value="">选择预设形状...</option>
-                    <option value="triangle1">▲ 三角形 (向上)</option>
-                    <option value="triangle2">▼ 三角形 (向下)</option>
-                    <option value="triangle3">◄ 三角形 (向左)</option>
-                    <option value="triangle4">► 三角形 (向右)</option>
-                    <option value="triangle5">◥ 三角形 (右上角)</option>
-                    <option value="sector">◠ 扇形 (90度)</option>
-                    <option value="square1">■ 正方形 (vw单位)</option>
-                    <option value="square2">■ 正方形 (padding百分比)</option>
-                    <option value="square3">■ 正方形 (margin-top百分比)</option>
-                </select>
-                <button id="run-btn">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            
+            <div class="preview-panel">
+                <div class="panel-header">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                     </svg>
-                    运行
-                </button>
-                <button id="reset-btn">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                    实时预览
+                </div>
+                <div class="preview-area">
+                    <div class="shape-container">
+                        <div id="shape"></div>
+                    </div>
+                </div>
+                <div class="panel-header">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                     </svg>
-                    重置
-                </button>
+                    HTML 结构
+                </div>
+                <div class="html-structure">&lt;div id="shape"&gt;&lt;/div&gt;</div>
             </div>
         </div>
         
-        <div class="preview-panel">
-            <div class="panel-header">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                </svg>
-                实时预览
-            </div>
-            <div class="preview-area">
-                <div class="shape-container">
-                    <div id="shape"></div>
+        <div class="content-row">
+            <div class="tips-panel">
+                <div class="panel-header">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    设计思路提示
+                </div>
+                <div class="tips-content" id="tips-content">
+                    <div class="tip-item">
+                        <h3>选择形状查看设计思路</h3>
+                        <p>从下拉菜单中选择一个形状，这里将显示该形状的CSS实现原理和技巧。</p>
+                    </div>
                 </div>
             </div>
-            <div class="panel-header">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
-                HTML 结构
-            </div>
-            <div class="html-structure">&lt;div id="shape"&gt;&lt;/div&gt;</div>
         </div>
     </div>
     
     <footer>
-        <p>CSS 形状实验室 &copy; 2023 | 使用 CSS 创建各种几何形状</p>
+        <p>ufulano &copy; 2025 | 使用 CSS 创建各种几何形状</p>
     </footer>
     
     <script>
@@ -344,104 +376,215 @@
             const resetBtn = document.getElementById('reset-btn');
             const presets = document.getElementById('presets');
             const shape = document.getElementById('shape');
-            const highlightedCode = document.querySelector('#highlighted-code code');
-            const lineNumbers = document.getElementById('line-numbers');
+            const tipsContent = document.getElementById('tips-content');
             
             // 创建一个style元素来持久化样式
             const styleElement = document.createElement('style');
             document.head.appendChild(styleElement);
             
-            // 预设代码 - 每种形状使用不同的颜色
+            // 形状设计思路提示
+            const shapeTips = {
+                triangle1: {
+                    title: "▲ 三角形 (向上)",
+                    content: "使用 border 属性创建：上边框有颜色，左右边框透明，宽度为0。关键是将宽度和高度设为0，通过边框宽度控制三角形大小。"
+                },
+                triangle2: {
+                    title: "▼ 三角形 (向下)",
+                    content: "与向上三角形原理相同，只是改为下边框有颜色。记住边框相交处是45度角斜切，这是形成三角形的关键。"
+                },
+                triangle3: {
+                    title: "◄ 三角形 (向左)",
+                    content: "左边框有颜色，上下边框透明。这种技术常用于创建工具提示的箭头。可以调整边框宽度比例来改变三角形角度。"
+                },
+                triangle4: {
+                    title: "► 三角形 (向右)",
+                    content: "右边框有颜色，上下边框透明。CSS三角形技术非常轻量，不需要图片或SVG，适合各种UI元素。"
+                },
+                triangle5: {
+                    title: "◥ 三角形 (右上角)",
+                    content: "只设置上边框和右边框，形成直角三角形的效果。这种不对称边框技术可以创建多种角度的三角形。"
+                },
+                sector: {
+                    title: "◠ 扇形 (90度)",
+                    content: "结合边框和圆角属性：设置大边框和圆角半径，只给一个边框上色。圆角半径等于边框宽度时形成1/4圆。"
+                },
+                square1: {
+                    title: "■ 正方形 (vw单位)",
+                    content: "使用vw单位创建响应式正方形：宽度和高度使用相同vw值。vw是视口宽度百分比，适合响应式设计。"
+                },
+                square2: {
+                    title: "■ 正方形 (padding百分比)",
+                    content: "利用padding-top百分比基于宽度的特性：设置宽度，padding-top与宽度相同，高度为0。这是经典的宽高比保持技术。"
+                },
+                square3: {
+                    title: "■ 正方形 (margin-top百分比)",
+                    content: "使用伪元素和margin-top百分比：容器设置宽度和overflow:hidden，伪元素用margin-top:100%撑开高度。"
+                },
+                trapezoid: {
+                    title: "▱ 梯形",
+                    content: "结合边框和宽度：设置高度为0，使用下边框和左右透明边框形成梯形。调整左右边框宽度可以改变梯形倾斜度。"
+                },
+                parallelogram: {
+                    title: "▱ 平行四边形",
+                    content: "使用transform: skew()变形矩形。注意内容也会被倾斜，如需避免，可以在内部再放一个反向倾斜的容器。"
+                },
+                star: {
+                    title: "★ 五角星",
+                    content: "组合两个旋转的三角形：主元素是一个向下的三角形，伪元素是一个向上的三角形，通过绝对定位组合成五角星。"
+                },
+                semiCircle: {
+                    title: "◔ 半圆",
+                    content: "设置高度为宽度的一半，并使用border-radius只圆化顶部两个角。调整border-radius值可以创建不同弧度的半圆。"
+                },
+                egg: {
+                    title: "🥚 蛋形",
+                    content: "使用不对称的border-radius值：顶部圆角比底部大。可以结合椭圆和圆角创建更自然的蛋形效果。"
+                },
+                cross: {
+                    title: "✚ 十字形",
+                    content: "组合两个矩形：一个水平一个垂直，或使用伪元素。更高级的实现可以用单个元素配合渐变背景。"
+                }
+            };
+            
+            // 预设代码
             const presetCodes = {
                 triangle1: `#shape {
     width: 0;
     height: 0;
-    border-top: 50px solid #FF5252;
+    border-top: 50px solid var(--gold);
     border-right: 50px solid transparent;
     border-left: 50px solid transparent;
-    filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
 }`,
                 triangle2: `#shape {
     width: 0;
     height: 0;
-    border-bottom: 50px solid #4CAF50;
+    border-bottom: 50px solid var(--gold);
     border-right: 50px solid transparent;
     border-left: 50px solid transparent;
-    filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
 }`,
                 triangle3: `#shape {
     width: 0;
     height: 0;
-    border-left: 50px solid #2196F3;
+    border-left: 50px solid var(--gold);
     border-top: 50px solid transparent;
     border-bottom: 50px solid transparent;
-    filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
 }`,
                 triangle4: `#shape {
     width: 0;
     height: 0;
-    border-right: 50px solid #FFC107;
+    border-right: 50px solid var(--gold);
     border-top: 50px solid transparent;
     border-bottom: 50px solid transparent;
-    filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
 }`,
                 triangle5: `#shape {
     width: 0;
     height: 0;
-    border-top: 100px solid #9C27B0;
+    border-top: 100px solid var(--gold);
     border-right: 100px solid transparent;
-    filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
 }`,
                 sector: `#shape {
     border: 100px solid transparent;
     width: 0;
     height: 0;
     border-radius: 100px;
-    border-top-color: #FF9800;
-    filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
+    border-top-color: var(--gold);
 }`,
                 square1: `#shape {
     width: 30%;
     height: 30vw;
-    background: #00BCD4;
-    filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
+    background: var(--deep-blue);
 }`,
                 square2: `#shape {
     width: 30%;
     height: 0;
     padding-top: 30%;
-    background: #795548;
-    filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
+    background: var(--deep-blue);
 }`,
                 square3: `#shape {
     width: 30%;
     overflow: hidden;
-    background: #607D8B;
-    filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
+    background: var(--deep-blue);
 }
 #shape::after {
     content: '';
     display: block;
     margin-top: 100%;
+}`,
+                trapezoid: `#shape {
+    width: 150px;
+    height: 0;
+    border-bottom: 100px solid var(--gold);
+    border-left: 30px solid transparent;
+    border-right: 30px solid transparent;
+}`,
+                parallelogram: `#shape {
+    width: 150px;
+    height: 100px;
+    transform: skew(-20deg);
+    background: var(--deep-blue);
+}`,
+                star: `#shape {
+    width: 0;
+    height: 0;
+    color: var(--gold);
+    position: relative;
+    border-right: 50px solid transparent;
+    border-bottom: 35px solid currentColor;
+    border-left: 50px solid transparent;
+}
+#shape::after {
+    content: '';
+    width: 0;
+    height: 0;
+    position: absolute;
+    top: 10px;
+    left: -50px;
+    border-right: 50px solid transparent;
+    border-top: 35px solid currentColor;
+    border-left: 50px solid transparent;
+}`,
+                semiCircle: `#shape {
+    width: 100px;
+    height: 50px;
+    border-radius: 50px 50px 0 0;
+    background: var(--deep-blue);
+}`,
+                egg: `#shape {
+    width: 80px;
+    height: 110px;
+    background: var(--gold);
+    border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+}`,
+                cross: `#shape {
+    width: 100px;
+    height: 20px;
+    background: var(--deep-blue);
+    position: relative;
+}
+#shape::after {
+    content: '';
+    position: absolute;
+    width: 20px;
+    height: 100px;
+    background: var(--deep-blue);
+    left: 40px;
+    top: -40px;
 }`
             };
             
-            // 更新行号
-            function updateLineNumbers(code) {
-                const lines = code.split('\n').length;
-                let numbers = '';
-                for (let i = 1; i <= lines; i++) {
-                    numbers += i + '\n';
-                }
-                lineNumbers.textContent = numbers;
-            }
-            
-            // 高亮代码
-            function highlightCode() {
-                const code = cssCode.value;
-                highlightedCode.textContent = code;
-                Prism.highlightElement(highlightedCode);
-                updateLineNumbers(code);
+            // 更新提示内容
+            function updateTips(shapeKey) {
+                const tip = shapeTips[shapeKey] || {
+                    title: "CSS形状设计技巧",
+                    content: "选择形状查看具体实现原理。CSS形状主要通过border、transform、伪元素等技术实现。"
+                };
+                
+                tipsContent.innerHTML = `
+                    <div class="tip-item">
+                        <h3>${tip.title}</h3>
+                        <p>${tip.content}</p>
+                    </div>
+                `;
             }
             
             // 选择预设
@@ -449,23 +592,20 @@
                 const selected = this.value;
                 if (selected && presetCodes[selected]) {
                     cssCode.value = presetCodes[selected];
-                    highlightCode();
                     applyStyles();
+                    updateTips(selected);
                 }
             });
             
             // 运行按钮
-            runBtn.addEventListener('click', function() {
-                highlightCode();
-                applyStyles();
-            });
+            runBtn.addEventListener('click', applyStyles);
             
             // 重置按钮
             resetBtn.addEventListener('click', function() {
                 cssCode.value = '';
                 styleElement.innerHTML = '';
                 shape.removeAttribute('style');
-                highlightCode();
+                updateTips('');
             });
             
             // 应用样式
@@ -476,511 +616,10 @@
                 styleElement.innerHTML = cssCode.value;
             }
             
-            // 监听代码编辑
-            cssCode.addEventListener('input', highlightCode);
-            cssCode.addEventListener('scroll', function() {
-                highlightedCode.scrollTop = this.scrollTop;
-                highlightedCode.scrollLeft = this.scrollLeft;
-                lineNumbers.scrollTop = this.scrollTop;
-            });
-            
             // 初始加载第一个预设
             cssCode.value = presetCodes.triangle1;
-            highlightCode();
             applyStyles();
-        });
-    </script>
-</body>
-</html><!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CSS 形状实验室 | 可视化 CSS 形状生成器</title>
-    <!-- 引入 Prism.js 代码高亮库 -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/themes/prism-okaidia.min.css" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-core.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/plugins/autoloader/prism-autoloader.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-css.min.js"></script>
-    
-    <style>
-        :root {
-            --primary-color: #4361ee;
-            --secondary-color: #3f37c9;
-            --accent-color: #4895ef;
-            --dark-color: #2b2d42;
-            --light-color: #f8f9fa;
-            --success-color: #4cc9f0;
-            --warning-color: #f72585;
-            --border-radius: 8px;
-            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            --transition: all 0.3s ease;
-        }
-        
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-        
-        body {
-            font-family: 'Roboto', 'Noto Sans SC', sans-serif;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-            background-color: #f0f2f5;
-            color: var(--dark-color);
-            line-height: 1.6;
-        }
-        
-        header {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            color: white;
-            padding: 1.5rem;
-            text-align: center;
-            box-shadow: var(--box-shadow);
-        }
-        
-        header h1 {
-            font-weight: 500;
-            font-size: 1.8rem;
-            margin-bottom: 0.5rem;
-        }
-        
-        .container {
-            display: flex;
-            flex: 1;
-            overflow: hidden;
-            max-width: 1200px;
-            margin: 0 auto;
-            width: 100%;
-            padding: 1rem;
-            gap: 1rem;
-        }
-        
-        .editor-panel, .preview-panel {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            background-color: white;
-            border-radius: var(--border-radius);
-            box-shadow: var(--box-shadow);
-            overflow: hidden;
-        }
-        
-        .editor-panel {
-            background-color: #1e1e2e;
-        }
-        
-        .panel-header {
-            padding: 1rem;
-            background-color: var(--primary-color);
-            color: white;
-            font-weight: 500;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        
-        .editor-panel .panel-header {
-            background-color: #2d2d3d;
-        }
-        
-        .panel-header svg {
-            width: 20px;
-            height: 20px;
-        }
-        
-        /* 修改代码编辑器样式 */
-        .code-editor {
-            flex: 1;
-            width: 100%;
-            background-color: #1e1e2e;
-            color: #d4d4d4;
-            border: none;
-            padding: 1rem;
-            font-family: 'Consolas', 'Monaco', monospace;
-            font-size: 14px;
-            line-height: 1.5;
-            resize: none;
-            outline: none;
-            border-radius: 0 0 var(--border-radius) var(--border-radius);
-            tab-size: 2;
-            white-space: pre;
-            overflow-x: auto;
-        }
-        
-        /* 代码高亮容器 */
-        .code-container {
-            position: relative;
-            flex: 1;
-            overflow: auto;
-        }
-        
-        /* 行号样式 */
-        .line-numbers {
-            position: absolute;
-            top: 0;
-            left: 0;
-            padding: 1rem;
-            padding-right: 0.5rem;
-            text-align: right;
-            color: #6c757d;
-            user-select: none;
-            font-family: 'Consolas', 'Monaco', monospace;
-            font-size: 14px;
-            line-height: 1.5;
-        }
-        
-        .preview-area {
-            flex: 1;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background: linear-gradient(45deg, #f5f7fa 25%, #e4e8ed 25%, #e4e8ed 50%, #f5f7fa 50%, #f5f7fa 75%, #e4e8ed 75%, #e4e8ed 100%);
-            background-size: 20px 20px;
-            border-radius: 0 0 var(--border-radius) var(--border-radius);
-            position: relative;
-        }
-        
-        .shape-container {
-            width: 100%;
-            height: 100%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 2rem;
-        }
-        
-        .controls {
-            display: flex;
-            gap: 0.75rem;
-            padding: 1rem;
-            background-color: #2d2d3d;
-            border-top: 1px solid #3a3a4a;
-        }
-        
-        button {
-            padding: 0.6rem 1.2rem;
-            background-color: var(--accent-color);
-            color: white;
-            border: none;
-            border-radius: var(--border-radius);
-            cursor: pointer;
-            font-size: 0.9rem;
-            font-weight: 500;
-            transition: var(--transition);
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        
-        button:hover {
-            background-color: var(--secondary-color);
-            transform: translateY(-2px);
-        }
-        
-        button#reset-btn {
-            background-color: #6c757d;
-        }
-        
-        button#reset-btn:hover {
-            background-color: #5a6268;
-        }
-        
-        select {
-            padding: 0.6rem;
-            border-radius: var(--border-radius);
-            border: 1px solid #3a3a4a;
-            background-color: #2d2d3d;
-            color: white;
-            font-size: 0.9rem;
-            flex: 1;
-            cursor: pointer;
-            transition: var(--transition);
-        }
-        
-        select:hover {
-            border-color: var(--accent-color);
-        }
-        
-        select:focus {
-            outline: none;
-            border-color: var(--accent-color);
-            box-shadow: 0 0 0 2px rgba(72, 149, 239, 0.3);
-        }
-        
-        .html-structure {
-            padding: 1rem;
-            background-color: white;
-            border-radius: 0 0 var(--border-radius) var(--border-radius);
-            font-family: 'Consolas', 'Monaco', monospace;
-            font-size: 14px;
-            color: #495057;
-            border-top: 1px solid #e9ecef;
-        }
-        
-        footer {
-            text-align: center;
-            padding: 1rem;
-            background-color: var(--dark-color);
-            color: white;
-            font-size: 0.9rem;
-        }
-        
-        /* 响应式设计 */
-        @media (max-width: 768px) {
-            .container {
-                flex-direction: column;
-                padding: 0.5rem;
-            }
-            
-            .editor-panel, .preview-panel {
-                min-height: 50vh;
-            }
-            
-            header h1 {
-                font-size: 1.5rem;
-            }
-        }
-        
-        /* 动画效果 */
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        .shape-container {
-            animation: fadeIn 0.3s ease-out;
-        }
-    </style>
-</head>
-<body>
-    <header>
-        <h1>CSS 形状实验室</h1>
-        <p>可视化 CSS 形状生成与预览工具</p>
-    </header>
-    
-    <div class="container">
-        <div class="editor-panel">
-            <div class="panel-header">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
-                </svg>
-                CSS 代码编辑器
-            </div>
-            <div class="code-container">
-                <div class="line-numbers" id="line-numbers"></div>
-                <textarea id="css-code" class="code-editor" spellcheck="false"></textarea>
-                <pre id="highlighted-code"><code class="language-css"></code></pre>
-            </div>
-            <div class="controls">
-                <select id="presets">
-                    <option value="">选择预设形状...</option>
-                    <option value="triangle1">▲ 三角形 (向上)</option>
-                    <option value="triangle2">▼ 三角形 (向下)</option>
-                    <option value="triangle3">◄ 三角形 (向左)</option>
-                    <option value="triangle4">► 三角形 (向右)</option>
-                    <option value="triangle5">◥ 三角形 (右上角)</option>
-                    <option value="sector">◠ 扇形 (90度)</option>
-                    <option value="square1">■ 正方形 (vw单位)</option>
-                    <option value="square2">■ 正方形 (padding百分比)</option>
-                    <option value="square3">■ 正方形 (margin-top百分比)</option>
-                </select>
-                <button id="run-btn">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    运行
-                </button>
-                <button id="reset-btn">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                    </svg>
-                    重置
-                </button>
-            </div>
-        </div>
-        
-        <div class="preview-panel">
-            <div class="panel-header">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                </svg>
-                实时预览
-            </div>
-            <div class="preview-area">
-                <div class="shape-container">
-                    <div id="shape"></div>
-                </div>
-            </div>
-            <div class="panel-header">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
-                HTML 结构
-            </div>
-            <div class="html-structure">&lt;div id="shape"&gt;&lt;/div&gt;</div>
-        </div>
-    </div>
-    
-    <footer>
-        <p>CSS 形状实验室 &copy; 2023 | 使用 CSS 创建各种几何形状</p>
-    </footer>
-    
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const cssCode = document.getElementById('css-code');
-            const runBtn = document.getElementById('run-btn');
-            const resetBtn = document.getElementById('reset-btn');
-            const presets = document.getElementById('presets');
-            const shape = document.getElementById('shape');
-            const highlightedCode = document.querySelector('#highlighted-code code');
-            const lineNumbers = document.getElementById('line-numbers');
-            
-            // 创建一个style元素来持久化样式
-            const styleElement = document.createElement('style');
-            document.head.appendChild(styleElement);
-            
-            // 预设代码 - 每种形状使用不同的颜色
-            const presetCodes = {
-                triangle1: `#shape {
-    width: 0;
-    height: 0;
-    border-top: 50px solid #FF5252;
-    border-right: 50px solid transparent;
-    border-left: 50px solid transparent;
-    filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
-}`,
-                triangle2: `#shape {
-    width: 0;
-    height: 0;
-    border-bottom: 50px solid #4CAF50;
-    border-right: 50px solid transparent;
-    border-left: 50px solid transparent;
-    filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
-}`,
-                triangle3: `#shape {
-    width: 0;
-    height: 0;
-    border-left: 50px solid #2196F3;
-    border-top: 50px solid transparent;
-    border-bottom: 50px solid transparent;
-    filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
-}`,
-                triangle4: `#shape {
-    width: 0;
-    height: 0;
-    border-right: 50px solid #FFC107;
-    border-top: 50px solid transparent;
-    border-bottom: 50px solid transparent;
-    filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
-}`,
-                triangle5: `#shape {
-    width: 0;
-    height: 0;
-    border-top: 100px solid #9C27B0;
-    border-right: 100px solid transparent;
-    filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
-}`,
-                sector: `#shape {
-    border: 100px solid transparent;
-    width: 0;
-    height: 0;
-    border-radius: 100px;
-    border-top-color: #FF9800;
-    filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
-}`,
-                square1: `#shape {
-    width: 30%;
-    height: 30vw;
-    background: #00BCD4;
-    filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
-}`,
-                square2: `#shape {
-    width: 30%;
-    height: 0;
-    padding-top: 30%;
-    background: #795548;
-    filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
-}`,
-                square3: `#shape {
-    width: 30%;
-    overflow: hidden;
-    background: #607D8B;
-    filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.1));
-}
-#shape::after {
-    content: '';
-    display: block;
-    margin-top: 100%;
-}`
-            };
-            
-            // 更新行号
-            function updateLineNumbers(code) {
-                const lines = code.split('\n').length;
-                let numbers = '';
-                for (let i = 1; i <= lines; i++) {
-                    numbers += i + '\n';
-                }
-                lineNumbers.textContent = numbers;
-            }
-            
-            // 高亮代码
-            function highlightCode() {
-                const code = cssCode.value;
-                highlightedCode.textContent = code;
-                Prism.highlightElement(highlightedCode);
-                updateLineNumbers(code);
-            }
-            
-            // 选择预设
-            presets.addEventListener('change', function() {
-                const selected = this.value;
-                if (selected && presetCodes[selected]) {
-                    cssCode.value = presetCodes[selected];
-                    highlightCode();
-                    applyStyles();
-                }
-            });
-            
-            // 运行按钮
-            runBtn.addEventListener('click', function() {
-                highlightCode();
-                applyStyles();
-            });
-            
-            // 重置按钮
-            resetBtn.addEventListener('click', function() {
-                cssCode.value = '';
-                styleElement.innerHTML = '';
-                shape.removeAttribute('style');
-                highlightCode();
-            });
-            
-            // 应用样式
-            function applyStyles() {
-                // 重置shape的内联样式
-                shape.removeAttribute('style');
-                // 更新style元素的内容
-                styleElement.innerHTML = cssCode.value;
-            }
-            
-            // 监听代码编辑
-            cssCode.addEventListener('input', highlightCode);
-            cssCode.addEventListener('scroll', function() {
-                highlightedCode.scrollTop = this.scrollTop;
-                highlightedCode.scrollLeft = this.scrollLeft;
-                lineNumbers.scrollTop = this.scrollTop;
-            });
-            
-            // 初始加载第一个预设
-            cssCode.value = presetCodes.triangle1;
-            highlightCode();
-            applyStyles();
+            updateTips('triangle1');
         });
     </script>
 </body>
