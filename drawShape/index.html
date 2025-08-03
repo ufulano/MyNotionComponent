@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CSS 形状实验室 | 可视化 CSS 形状生成器</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&family=Noto+Sans+SC:wght@300;400;500&display=swap" rel="stylesheet">
+    <!-- 引入 Prism.js 代码高亮 -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/themes/prism-okaidia.min.css" rel="stylesheet">
     <style>
         :root {
             --gold: #FFD700;
@@ -111,20 +113,66 @@
             height: 20px;
         }
         
-        .code-editor {
+        /* 代码编辑器容器 */
+        .code-container {
+            position: relative;
             flex: 1;
+            overflow: hidden;
+            display: flex;
+        }
+        
+        /* 行号容器 - 隐藏 */
+        .line-numbers-container {
+            display: none;
+        }
+        
+        /* 编辑器主体容器 */
+        .editor-main {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        /* 文本输入框 */
+        .code-editor {
+            position: absolute;
+            top: 0;
+            left: 0;
             width: 100%;
-            background-color: white;
-            color: #333;
+            height: 100%;
+            background-color: #272822;
+            color: #f8f8f2;
             border: none;
             padding: 1rem;
             font-family: 'Consolas', 'Monaco', monospace;
             font-size: 14px;
             resize: none;
             outline: none;
-            border-radius: 0 0 var(--border-radius) var(--border-radius);
             line-height: 1.5;
-            border: 1px solid #ddd;
+            caret-color: #f8f8f2;
+            z-index: 2;
+            overflow: auto;
+        }
+        
+        /* 选中文本高亮 */
+        .code-editor::selection {
+            background-color: rgba(255, 255, 255, 0.3);
+        }
+        
+        .code-editor::-moz-selection {
+            background-color: rgba(255, 255, 255, 0.3);
+        }
+        
+        /* 高亮显示的代码 - 隐藏 */
+        .highlighted-code {
+            display: none;
+        }
+        
+        /* 同步滚动容器 */
+        .sync-scroll-container {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
         }
         
         .preview-area {
@@ -288,7 +336,13 @@
                     </svg>
                     CSS 代码编辑器
                 </div>
-                <textarea id="css-code" class="code-editor" spellcheck="false"></textarea>
+                <div class="code-container">
+                    <div class="line-numbers-container" id="line-numbers"></div>
+                    <div class="editor-main">
+                        <textarea id="css-code" class="code-editor" spellcheck="false"></textarea>
+                        <pre id="highlighted-code" class="highlighted-code"><code class="language-css"></code></pre>
+                    </div>
+                </div>
                 <div class="controls">
                     <select id="presets">
                         <option value="">选择预设形状...</option>
@@ -365,6 +419,10 @@
         </div>
     </div>
     
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/plugins/autoloader/prism-autoloader.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.24.1/components/prism-css.min.js"></script>
+    
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const cssCode = document.getElementById('css-code');
@@ -373,6 +431,8 @@
             const presets = document.getElementById('presets');
             const shape = document.getElementById('shape');
             const tipsContent = document.getElementById('tips-content');
+            const highlightedCode = document.querySelector('#highlighted-code code');
+            const lineNumbers = document.getElementById('line-numbers');
             
             // 创建一个style元素来持久化样式
             const styleElement = document.createElement('style');
@@ -586,6 +646,38 @@
 }`
             };
             
+            // 更新行号
+            function updateLineNumbers(code) {
+                const lines = code.split('\n').length;
+                let numbers = '';
+                for (let i = 1; i <= lines; i++) {
+                    numbers += i + '\n';
+                }
+                lineNumbers.textContent = numbers;
+            }
+            
+            // 高亮代码
+            function highlightCode() {
+                const code = cssCode.value;
+                highlightedCode.textContent = code;
+                Prism.highlightElement(highlightedCode);
+                updateLineNumbers(code);
+            }
+            
+            // 同步滚动
+            function syncScroll() {
+                const textarea = cssCode;
+                const pre = highlightedCode;
+                const lineNumbers = document.getElementById('line-numbers');
+                
+                // 同步垂直滚动
+                pre.scrollTop = textarea.scrollTop;
+                lineNumbers.scrollTop = textarea.scrollTop;
+                
+                // 同步水平滚动
+                pre.scrollLeft = textarea.scrollLeft;
+            }
+            
             // 更新提示内容
             function updateTips(shapeKey) {
                 const tip = shapeTips[shapeKey] || {
@@ -606,19 +698,24 @@
                 const selected = this.value;
                 if (selected && presetCodes[selected]) {
                     cssCode.value = presetCodes[selected];
+                    highlightCode();
                     applyStyles();
                     updateTips(selected);
                 }
             });
             
             // 运行按钮
-            runBtn.addEventListener('click', applyStyles);
+            runBtn.addEventListener('click', function() {
+                highlightCode();
+                applyStyles();
+            });
             
             // 重置按钮
             resetBtn.addEventListener('click', function() {
                 cssCode.value = '';
                 styleElement.innerHTML = '';
                 shape.removeAttribute('style');
+                highlightCode();
                 updateTips('');
             });
             
@@ -630,8 +727,44 @@
                 styleElement.innerHTML = cssCode.value;
             }
             
+            // 监听代码编辑
+            cssCode.addEventListener('input', highlightCode);
+            cssCode.addEventListener('scroll', syncScroll);
+            cssCode.addEventListener('keydown', function(e) {
+                // 处理Tab键
+                if (e.key === 'Tab') {
+                    e.preventDefault();
+                    const start = this.selectionStart;
+                    const end = this.selectionEnd;
+                    const value = this.value;
+                    
+                    if (e.shiftKey) {
+                        // Shift+Tab: 删除缩进
+                        const beforeCursor = value.substring(0, start);
+                        const afterCursor = value.substring(end);
+                        const beforeLines = beforeCursor.split('\n');
+                        const afterLines = afterCursor.split('\n');
+                        
+                        if (beforeLines.length > 1) {
+                            const lastLine = beforeLines[beforeLines.length - 1];
+                            if (lastLine.startsWith('    ')) {
+                                beforeLines[beforeLines.length - 1] = lastLine.substring(4);
+                                this.value = beforeLines.join('\n') + afterLines.join('\n');
+                                this.selectionStart = this.selectionEnd = start - 4;
+                            }
+                        }
+                    } else {
+                        // Tab: 插入缩进
+                        this.value = value.substring(0, start) + '    ' + value.substring(end);
+                        this.selectionStart = this.selectionEnd = start + 4;
+                    }
+                    highlightCode();
+                }
+            });
+            
             // 初始加载第一个预设
             cssCode.value = presetCodes.triangle1;
+            highlightCode();
             applyStyles();
             updateTips('triangle1');
         });
