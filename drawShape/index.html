@@ -365,10 +365,6 @@
         </div>
     </div>
     
-    <footer>
-        <p>ufulano &copy; 2025 | 使用 CSS 创建各种几何形状</p>
-    </footer>
-    
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             const cssCode = document.getElementById('css-code');
@@ -432,7 +428,7 @@
                     title: "★ 五角星",
                     content: "组合两个旋转的三角形：主元素是一个向下的三角形，伪元素是一个向上的三角形，通过绝对定位组合成五角星。"
                 },
-                semiCircle: {
+                'semi-circle': {
                     title: "◔ 半圆",
                     content: "设置高度为宽度的一半，并使用border-radius只圆化顶部两个角。调整border-radius值可以创建不同弧度的半圆。"
                 },
@@ -528,22 +524,40 @@
     height: 0;
     color: var(--gold);
     position: relative;
-    border-right: 50px solid transparent;
-    border-bottom: 35px solid currentColor;
-    border-left: 50px solid transparent;
+    display: block;
+    margin: 50px 0;
+    border-right: 100px solid transparent;
+    border-bottom: 70px solid currentColor;
+    border-left: 100px solid transparent;
+    transform: rotate(35deg);
 }
-#shape::after {
+
+#shape:before {
     content: '';
     width: 0;
     height: 0;
     position: absolute;
-    top: 10px;
-    left: -50px;
-    border-right: 50px solid transparent;
-    border-top: 35px solid currentColor;
-    border-left: 50px solid transparent;
+    top: -45px;
+    left: -65px;
+    border-right: 30px solid transparent;
+    border-bottom: 80px solid currentColor;
+    border-left: 30px solid transparent;
+    transform: rotate(-35deg);
+}
+
+#shape:after {
+    content: '';
+    width: 0;
+    height: 0;
+    position: absolute;
+    top: 3px;
+    left: -105px;
+    border-right: 100px solid transparent;
+    border-bottom: 70px solid currentColor;
+    border-left: 100px solid transparent;
+    transform: rotate(-70deg);
 }`,
-                semiCircle: `#shape {
+                'semi-circle': `#shape {
     width: 100px;
     height: 50px;
     border-radius: 50px 50px 0 0;
